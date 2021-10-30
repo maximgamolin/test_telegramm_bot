@@ -1,0 +1,9 @@
+[Unit]
+Description=telegram bot
+
+[Service]
+WorkingDirectory=/root/test_telegramm_bot
+ExecStart=/root/test_telegramm_bot/venv/bin/python tasks.py
+
+[Install]
+WantedBy=multi-user.target
