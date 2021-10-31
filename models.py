@@ -1,9 +1,4 @@
-import telebot
-import re
 import peewee
-from random import shuffle
-import json
-
 
 sqlite_db = peewee.SqliteDatabase('app.db', pragmas={
     'journal_mode': 'wal',

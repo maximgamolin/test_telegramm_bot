@@ -1,10 +1,12 @@
-import telebot
-import re
-import peewee
-from random import shuffle
 import json
-from models import User, WordTranslate, Word, Translate
+import re
+from random import shuffle
+
+import peewee
+import telebot
+
 from bot import bot
+from models import User, WordTranslate, Word, Translate
 
 pattern = re.compile(r'/add[\s]([\w]+)[\s]([\w]+)')
 

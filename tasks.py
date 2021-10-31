@@ -1,5 +1,7 @@
-import schedule
 import time
+
+import schedule
+
 from models import User
 from server import get_test
 
