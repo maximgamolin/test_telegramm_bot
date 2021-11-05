@@ -73,13 +73,13 @@ def callback_inline(call):
                 text=f'Еще?', callback_data=json.dumps({"t": "m"})
             )
             markup.add(btn)
-            wt: WordTranslate = WordTranslate\
-                .get(WordTranslate.word_id == msg["q"],
-                     WordTranslate.user == user,
-                     WordTranslate.translate_id == msg['a'])
-            if wt:
+            try:
+                wt: WordTranslate = WordTranslate\
+                    .get(WordTranslate.word_id == msg["q"],
+                         WordTranslate.user == user,
+                         WordTranslate.translate_id == msg['a'])
                 bot.send_message(call.message.chat.id, f"✅ Правильный ответ", reply_markup=markup)
-            else:
+            except peewee.DoesNotExist:
                 _wt: WordTranslate = WordTranslate \
                     .get(WordTranslate.word_id == msg["q"],
                          WordTranslate.user == user)
