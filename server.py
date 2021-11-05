@@ -74,11 +74,16 @@ def callback_inline(call):
             )
             markup.add(btn)
             wt: WordTranslate = WordTranslate\
-                .get(WordTranslate.word_id == msg["q"], WordTranslate.user == user)
-            if wt.translate.id == msg['a']:
+                .get(WordTranslate.word_id == msg["q"],
+                     WordTranslate.user == user,
+                     WordTranslate.translate_id == msg['a'])
+            if wt:
                 bot.send_message(call.message.chat.id, f"✅ Правильный ответ", reply_markup=markup)
             else:
-                t = Translate.get(Translate.id == wt.translate_id)
+                _wt: WordTranslate = WordTranslate \
+                    .get(WordTranslate.word_id == msg["q"],
+                         WordTranslate.user == user)
+                t = Translate.get(Translate.id == _wt.translate_id)
                 bot.send_message(call.message.chat.id, f"❌ Ошибка, правильный ответ {t.translate}", reply_markup=markup)
         if msg["t"] == "m":
             get_test(call.message, user)
