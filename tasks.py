@@ -1,5 +1,5 @@
 import time
-
+import logging
 import schedule
 
 from models import User
@@ -15,5 +15,9 @@ def job():
 if __name__ == '__main__':
     schedule.every(30).minutes.do(job)
     while True:
-        schedule.run_pending()
+        try:
+            schedule.run_pending()
+        except Exception as e:
+            logging.exception("Не удалось отправить плановый тест")
+            pass
         time.sleep(1)

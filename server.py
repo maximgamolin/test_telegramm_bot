@@ -13,7 +13,15 @@ pattern = re.compile(r'/add[\s]([\w]+)[\s]([\w]+)')
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
-    bot.reply_to(message, "/add слово перевод | Добавляет слово\n/test запрашивает слово\n")
+    bot.reply_to(message, "/add слово перевод | Добавляет слово\n"
+                          "/test запрашивает слово\n"
+                          "/stat количество слов и переводов в базе\n")
+
+
+@bot.message_handler(commands=['stat'])
+def stat(message):
+    msg = f"🇺🇸 Слов: {Word.select().count()}\n🇷🇺 Переводов: {Translate.select().count()}"
+    bot.reply_to(message, msg)
 
 
 @bot.message_handler(commands=['add'])
