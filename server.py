@@ -1,6 +1,6 @@
 import json
 import re
-from random import shuffle
+from random import shuffle, choice
 
 import peewee
 import telebot
@@ -67,7 +67,35 @@ def get_test(message, user=None):
     shuffle(buttons)
     markup.add(*buttons[:2])
     markup.add(*buttons[2:])
-    bot.send_message(user.chat_id, f"❔ Слово {answer.word}", reply_markup=markup)
+    bot.send_message(user.chat_id, f"❔🇺🇸 Слово {answer.word}", reply_markup=markup)
+
+
+@bot.message_handler(commands=['rtest'])
+def get_reversed_test(message, user=None):
+    user = user or User.get(User.external_id == message.from_user.id)
+    pairs = WordTranslate.select() \
+        .where(WordTranslate.user == user) \
+        .order_by(peewee.fn.Random()) \
+        .limit(4)
+    markup = telebot.types.InlineKeyboardMarkup()
+    buttons = []
+    answer = None
+    for row in pairs:
+        translate = Translate.get(Translate.id == row.translate.id, Translate.user == row.user)
+        if answer is None:
+            answer = translate
+        word = Word.get(Word.id == row.word.id, Word.user == row.user)
+        btn = telebot.types.InlineKeyboardButton(
+            text=f'{row.word.word}',
+            callback_data=json.dumps(
+                {"t": "ra", "q": answer.id, "a": word.id}
+            )
+        )
+        buttons.append(btn)
+    shuffle(buttons)
+    markup.add(*buttons[:2])
+    markup.add(*buttons[2:])
+    bot.send_message(user.chat_id, f"❔🇷🇺 Слово {answer.word}", reply_markup=markup)
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -93,8 +121,29 @@ def callback_inline(call):
                          WordTranslate.user == user)
                 t = Translate.get(Translate.id == _wt.translate_id)
                 bot.send_message(call.message.chat.id, f"❌ Ошибка, правильный ответ {t.translate}", reply_markup=markup)
+
+        if msg["t"] == "ra":
+            markup = telebot.types.InlineKeyboardMarkup()
+            btn = telebot.types.InlineKeyboardButton(
+                text=f'Еще?', callback_data=json.dumps({"t": "m"})
+            )
+            markup.add(btn)
+            try:
+                wt: WordTranslate = WordTranslate\
+                    .get(WordTranslate.translate_id == msg["q"],
+                         WordTranslate.user == user,
+                         WordTranslate.word_id == msg['a'])
+                bot.send_message(call.message.chat.id, f"✅ Правильный ответ", reply_markup=markup)
+            except peewee.DoesNotExist:
+                _wt: WordTranslate = WordTranslate \
+                    .get(WordTranslate.translate_id == msg["q"],
+                         WordTranslate.user == user)
+                t = Word.get(Word.id == _wt.word_id)
+                bot.send_message(call.message.chat.id, f"❌ Ошибка, правильный ответ {t.word}", reply_markup=markup)
+
         if msg["t"] == "m":
-            get_test(call.message, user)
+            test_func = choice((get_test, get_reversed_test))
+            test_func(call.message, user)
 
 
 if __name__ == '__main__':
