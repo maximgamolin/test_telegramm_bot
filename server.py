@@ -95,7 +95,7 @@ def get_reversed_test(message, user=None):
     shuffle(buttons)
     markup.add(*buttons[:2])
     markup.add(*buttons[2:])
-    bot.send_message(user.chat_id, f"❔🇷🇺 Слово {answer.word}", reply_markup=markup)
+    bot.send_message(user.chat_id, f"❔🇷🇺 Слово {answer.translate}", reply_markup=markup)
 
 
 @bot.callback_query_handler(func=lambda call: True)
